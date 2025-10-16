@@ -1143,7 +1143,7 @@ def colonyQualityControl(height_crop, width_crop, image_trans_crop, resize_facto
 			myscrollbar = Scrollbar(frm, orient = "vertical", command = canvas.yview)
 			canvas.configure(yscrollcommand = myscrollbar.set)
 			colony_button_list = []
- 			def button_fun(args):
+			def button_fun(args):
 				k = args[0]
 				varPool_1 = args[1]
 				if varPool_1.colony_button_flag[k] == 0:
