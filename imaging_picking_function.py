@@ -102,7 +102,7 @@ def fun0_detectColonySingleImage(image_trans_path, image_epi_path, image_label, 
 	
 	time_dur = round(time.time() - start_time, 2)
 	start_time = time.time()
-	print "Finish " + image_label + " image loading... (Execution time: " + str(time_dur) + ")"
+	print("Finish " + image_label + " image loading... (Execution time: " + str(time_dur) + ")")
 
 	# crop the images
 	image_trans_crop = crop_image(image_trans_raw, cropXMin, cropXMax, cropYMin, cropYMax)
@@ -134,7 +134,7 @@ def fun0_detectColonySingleImage(image_trans_path, image_epi_path, image_label, 
 	image_res_bg = cv2.bitwise_and(image_gray_first, image_gray_first, mask = image_mask_bg)
 	time_dur = round(time.time() - start_time, 2)
 	start_time = time.time()
-	print "Finish " + image_label + " background removal... (Execution time: " + str(time_dur) + ")"
+	print("Finish " + image_label + " background removal... (Execution time: " + str(time_dur) + ")")
 
 	## gaussian blur and perform edge detection
 	image_res_GB = cv2.GaussianBlur(image_res_bg, (5, 5), 0)
@@ -149,25 +149,25 @@ def fun0_detectColonySingleImage(image_trans_path, image_epi_path, image_label, 
 
 	time_dur = round(time.time() - start_time, 2)
 	start_time = time.time()	
-	print "Finish " + image_label + " first run of colony detection... (Execution time: " + str(time_dur) + ")"
+	print("Finish " + image_label + " first run of colony detection... (Execution time: " + str(time_dur) + ")")
 
 	finalContours, finalDF = filterContours(contours, configure_pool, image_trans_corrected, image_epi_corrected, height_crop, width_crop)
 
 	time_dur = round(time.time() - start_time, 2)
 	start_time = time.time()
-	print "Finish " + image_label + " colony filtering... (Execution time: " + str(time_dur) + ")"
+	print("Finish " + image_label + " colony filtering... (Execution time: " + str(time_dur) + ")")
 
 	post_finalContours = postprocess_contours(finalDF, finalContours, image_trans_corrected, configure_pool)	
 	time_dur = round(time.time() - start_time, 2)
 	start_time = time.time()	
-	print "Finish " + image_label + " multi-colony segmentation... (Execution time: " + str(time_dur) + ")"
+	print("Finish " + image_label + " multi-colony segmentation... (Execution time: " + str(time_dur) + ")")
 
 	post_finalContours_final = filterContours_final(post_finalContours, configure_pool, image_trans_crop, image_epi_crop, height_crop, width_crop)
 
 	post_finalDF = getFinalData(post_finalContours_final, configure_pool, image_trans_corrected, image_epi_corrected, height_crop, width_crop)
 	time_dur = round(time.time() - start_time, 2)
 	start_time = time.time()	
-	print "Finish " + image_label + " final data gathering... (Execution time: " + str(time_dur) + ")"
+	print("Finish " + image_label + " final data gathering... (Execution time: " + str(time_dur) + ")")
 	return image_trans_corrected, image_epi_corrected, post_finalContours_final, post_finalDF
 
 def fun1_runPlateQualityControl(image_trans_crop, image_epi_crop, post_finalContours, post_finalDF, image_label, configure_pool):
@@ -197,7 +197,7 @@ def fun1_runPlateQualityControl(image_trans_crop, image_epi_crop, post_finalCont
 								height_crop * plateQC_imageScaleFactor + plateQC_imageHeightBias), plateQC_ComfirmWindow, \
 								image_label, len(post_finalContours), plateQC_TextSizeLarge, plateQC_TextSizeSmall, plateQC_TextSizeButton)
 	time_dur = round(time.time() - start_time, 2)
-	print "Finish " + image_label + " plate QC... (Execution time: " + str(time_dur) + ")"
+	print("Finish " + image_label + " plate QC... (Execution time: " + str(time_dur) + ")")
 	return flag
 
 def fun2_pickColonyPilot(post_finalDF, num_of_colonies, image_label, configure_pool):
@@ -205,7 +205,7 @@ def fun2_pickColonyPilot(post_finalDF, num_of_colonies, image_label, configure_p
 	start_time = time.time()
 	pick_choice, post_finalDF_PCA = pickColonyFirst(post_finalDF, num_of_colonies, farthest_points_iteration)
 	time_dur = round(time.time() - start_time, 2)
-	print "Finish " + image_label + " first run of colony selection... (Execution time: " + str(time_dur) + ")"
+	print("Finish " + image_label + " first run of colony selection... (Execution time: " + str(time_dur) + ")")
 	return pick_choice, post_finalDF_PCA		
 
 def fun3_runColonyQualityControl_group(eachGroupID, groupID_index, varPool, configure_pool, sample_config):
@@ -275,7 +275,7 @@ def fun3_runColonyQualityControl(height_crop, width_crop, image_trans_crop, post
 								pick_choice, post_finalDF, post_finalDF_PCA, colonyQC_colonyContourPixel, colonyQC_colonyLabelSize, colonyQC_colonyLabelThickness, \
 								colonyQC_TextSizeLarge, colonyQC_TextSizeMid, colonyQC_TextSizeSmall, colonyQC_TextSizeButton)
 	time_dur = round(time.time() - start_time, 2)
-	print "Finish " + image_label + " colony QC... (Execution time: " + str(time_dur) + ")"	
+	print("Finish " + image_label + " colony QC... (Execution time: " + str(time_dur) + ")")
 	return final_pick, bad_pick
 
 
@@ -964,14 +964,14 @@ def pickColonyFirst(finalDF, num_of_pick, iteration):
 	max_min_dist = 0.0
 	best_choices = []
 	startTime = time.time()
-	print "Start farthest points optimization"
+	print("Start farthest points optimization")
 	for robust_iter in range(iteration):
 		choices, min_dist = farthest_points(preprocessed_plates, thresh)
 		if best_choices == [] or min_dist > max_min_dist:
 			max_min_dist = min_dist
 			best_choices = choices[:]
 		time_dur = round(time.time() - startTime, 2)
-		print "Finish farthest points iteration " + str(robust_iter) + "... (Execution time: " + str(time_dur) + ")"
+		print("Finish farthest points iteration " + str(robust_iter) + "... (Execution time: " + str(time_dur) + ")")
 		startTime = time.time()
 	choices = best_choices
 	choices.sort()
