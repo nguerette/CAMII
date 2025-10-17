@@ -55,7 +55,7 @@ def readConfigureFile(configure_path):
 		varValue = tmp[1]
 		if "(" == varValue[0]:
 			tmp2 = varValue[1:-1].split(",")
-			varOutput = tuple([int(e) for e in tmp2])
+			varOutput = tuple(int(e) for e in tmp2)
 		elif not is_number(varValue):
 			varOutput = varValue
 		elif "." in varValue:
@@ -214,12 +214,12 @@ def fun3_runColonyQualityControl_group(eachGroupID, groupID_index, varPool, conf
 	fontThickness = configure_pool["colonyQC_image_thickness"]
 	groupID_index = findGroupIDindex(varPool, eachGroupID)
 	if len(groupID_index) > 0:
-		groupID_label_list = [varPool.image_label[i] for i in groupID_index]
-		groupID_image_trans_list = [varPool.image_trans_corrected[i] for i in groupID_index]
-		groupID_image_epi_list = [varPool.image_epi_corrected[i] for i in groupID_index]
-		groupID_contour_list = [varPool.all_contours[i] for i in groupID_index]
-		groupID_metadata_list = [varPool.all_metadata[i] for i in groupID_index]
-		groupID_totalColonies = sum([len(varPool.all_contours[i]) for i in groupID_index])
+		groupID_label_list = list(varPool.image_label[i] for i in groupID_index)
+		groupID_image_trans_list = list(varPool.image_trans_corrected[i] for i in groupID_index)
+		groupID_image_epi_list = list(varPool.image_epi_corrected[i] for i in groupID_index)
+		groupID_contour_list = list(varPool.all_contours[i] for i in groupID_index)
+		groupID_metadata_list = list(varPool.all_metadata[i] for i in groupID_index)
+		groupID_totalColonies = sum(len(varPool.all_contours[i]) for i in groupID_index)
 		groupID_colony_to_pick = getNumPickColonies(sample_config, eachGroupID)
 
 		groupID_image_merge, groupID_image_heightStart = concatenateImages_gray(groupID_image_trans_list, groupID_label_list, spacing, fontSize, fontThickness)
@@ -301,7 +301,7 @@ def mergeModifyContour(contour_list, image_height_start):
 	for i in range(len(contour_list)):
 		tmpContours = contour_list[i]
 		tmpHeightStart = image_height_start[i]
-		tmpContoursModified = [(e + [0, tmpHeightStart]) for e in tmpContours]
+		tmpContoursModified = list((e + [0, tmpHeightStart]) for e in tmpContours)
 		output_contour_list += tmpContoursModified
 	return output_contour_list
 
@@ -381,7 +381,7 @@ def calculate_background_GMM(image_gray_first_con, size_subSample, mean_empirica
 	mean_init_empirical[:,0] = mean_empirical
 	clf_Gray = GaussianMixture(n_components = 2, max_iter = 500, means_init = mean_init_empirical)
 	clf_Gray.fit(GMM_input)
-	index_Gray = [e for e in range(len(clf_Gray.means_)) if clf_Gray.means_[e] == max(clf_Gray.means_)][0]
+	index_Gray = list(e for e in range(len(clf_Gray.means_)) if clf_Gray.means_[e] == max(clf_Gray.means_))[0]
 	bg_gray_mean = int(clf_Gray.means_[index_Gray][0])
 	bg_gray_sd = clf_Gray.covariances_[index_Gray][0][0] ** 0.5
 	return bg_gray_mean, bg_gray_sd
@@ -393,7 +393,7 @@ def getMetadataLabelIndex(metadata_merge, label_list):
 	tmpPlates = list(metadata_merge["plate_barcode"])
 	for i in range(metadata_merge.shape[0]):
 		tmpIndex[tmpPlates[i]].append(i)
-	return [tmpIndex[e] for e in label_list]
+	return list(tmpIndex[e] for e in label_list)
 
 def crop_image(image, cropX_min, cropX_max, cropY_min, cropY_max):
 	return image[cropY_min:cropY_max, cropX_min:cropX_max]
@@ -813,8 +813,8 @@ def plateQualityControl(image_trans_crop, resize_factor, main_window_size, confi
 	while True:
 		globalVar = globalVarObject()
 		globalVar.qc_plate_flag = -1
-		root_size = [int(e) for e in main_window_size]
-		confirm_size = [int(e) for e in confirm_window_size]
+		root_size = list(int(e) for e in main_window_size)
+		confirm_size = list(int(e) for e in confirm_window_size)
 		root = Tk()
 		root.title("All colonies after QC on plate: " + image_label)
 		root.geometry("x".join([str(root_size[0]), str(root_size[1])]))
@@ -906,7 +906,7 @@ def concat_metadata(metadata_list, heightStart):
 	for i in range(len(metadata_list)):
 		tmp_metadata = metadata_list[i]
 		tmp_Height = heightStart[i]
-		tmp_metadata["Y_concat"] = [e + tmp_Height for e in list(tmp_metadata["Y"])]
+		tmp_metadata["Y_concat"] = list(e + tmp_Height for e in list(tmp_metadata["Y"]))
 		tmpList.append(tmp_metadata)
 	return pd.concat(tmpList)
 
@@ -983,11 +983,11 @@ def reSelectColony(num_of_pick, previous_pick, ignore_pick, post_finalDF_PCA):
 	candidates = []
 	for i in range(num_of_total):
 		if (i not in previous_pick) and (i not in ignore_pick):
-			tmpDist = min([dist_mat[i, e] for e in previous_pick])
+			tmpDist = min(dist_mat[i, e] for e in previous_pick)
 			candidates.append([tmpDist, i])
 	candidates.sort()
 	candidates.reverse()
-	final_pick = [candidates[i][1] for i in range(num_of_pick)]
+	final_pick = list(candidates[i][1] for i in range(num_of_pick))
 	return final_pick
 
 def generateContourSubImage_QC(image_trans_crop, contour, midpoint, segment_bias, final_size, pixel, label, fontScale, thickness):
@@ -1072,10 +1072,10 @@ def colonyQualityControl(height_crop, width_crop, image_trans_crop, resize_facto
 	globalVar.breakFlag = 0
 	globalVar.bad_colonies = []
 	globalVar.num_of_pick = len(pick_choice)
-	globalVar.finalPick = [i for i in pick_choice]
+	globalVar.finalPick = list(i for i in pick_choice)
 	globalVar.pick_finalDF = post_finalDF.iloc[globalVar.finalPick]
 	globalVar.pick_finalDF.index = range(len(globalVar.finalPick))
-	globalVar.pick_finalContours = [post_finalContours[i] for i in globalVar.finalPick]
+	globalVar.pick_finalContours = list(post_finalContours[i] for i in globalVar.finalPick)
 	globalVar.image_picked_contours = drawContour(image_trans_crop, globalVar.pick_finalContours, colonyQC_colonyContourPixel)
 	globalVar.image_picked_contours_label = drawContourLabel(globalVar.image_picked_contours, globalVar.pick_finalDF, range(1, len(globalVar.finalPick) + 1), colonyQC_colonyLabelSize, colonyQC_colonyLabelThickness)
 	globalVar.colony_button_flag = []
@@ -1086,8 +1086,8 @@ def colonyQualityControl(height_crop, width_crop, image_trans_crop, resize_facto
 		globalVar.colony_button_flag.append(0)
 	globalVar.remaining_colonies = len(post_finalContours) - len(globalVar.finalPick)	
 	globalVar.outputPick = []
-	root_size = [int(e) for e in main_window_size]
-	confirm_size = [int(e) for e in confirm_window_size]
+	root_size  = list(int(e) for e in main_window_size)
+	confirm_size  = list(int(e) for e in confirm_window_size)
 	colony_show_bias = int(colony_show_bias)
 	colony_show_size = int(colony_show_size)
 	while True:
@@ -1181,7 +1181,7 @@ def colonyQualityControl(height_crop, width_crop, image_trans_crop, resize_facto
 				show_whole_image(varPool_1)
 			click_back_with_arg = partial(click_back, varPool)
 			def click_reselect(varPool_1):
-				tmpPick = [varPool_1.finalPick[i] for i in range(len(varPool_1.finalPick)) if varPool_1.colony_button_flag[i] == 0]
+				tmpPick = list(varPool_1.finalPick[i] for i in range(len(varPool_1.finalPick)) if varPool_1.colony_button_flag[i] == 0)
 				if len(tmpPick) == 0:
 					time.sleep(0.1)
 					top = Toplevel()
@@ -1197,12 +1197,12 @@ def colonyQualityControl(height_crop, width_crop, image_trans_crop, resize_facto
 				else:
 					toPick = min(varPool_1.remaining_colonies, varPool_1.num_of_pick - len(tmpPick))
 					varPool_1.remaining_colonies -= toPick
-					varPool_1.bad_colonies += [varPool_1.finalPick[i] for i in range(len(varPool_1.finalPick)) if varPool_1.colony_button_flag[i] == 1]
+					varPool_1.bad_colonies += list(varPool_1.finalPick[i] for i in range(len(varPool_1.finalPick)) if varPool_1.colony_button_flag[i] == 1)
 					if toPick != 0:
 						pick_list = reSelectColony(toPick, tmpPick, varPool_1.bad_colonies, post_finalDF_PCA)
 						varPool_1.finalPick = tmpPick + pick_list
 						varPool_1.finalPick.sort()
-						varPool_1.pick_finalContours = [post_finalContours[i] for i in varPool_1.finalPick]
+						varPool_1.pick_finalContours = list(post_finalContours[i] for i in varPool_1.finalPick)
 						varPool_1.pick_finalDF = post_finalDF.iloc[varPool_1.finalPick]
 						varPool_1.pick_finalDF.index = range(len(varPool_1.finalPick))
 						varPool_1.image_picked_contours = drawContour(image_trans_crop, varPool_1.pick_finalContours, colonyQC_colonyContourPixel)
@@ -1252,9 +1252,9 @@ def colonyQualityControl(height_crop, width_crop, image_trans_crop, resize_facto
 					time.sleep(0.1)
 					top.destroy()
 					root.destroy()
-					varPool_2.outputPick = [varPool_2.finalPick[i] for i in range(len(varPool_2.finalPick)) if varPool_2.colony_button_flag[i] == 0]
+					varPool_2.outputPick = list(varPool_2.finalPick[i] for i in range(len(varPool_2.finalPick)) if varPool_2.colony_button_flag[i] == 0)
 					varPool_2.breakFlag = 1
-					varPool_2.bad_colonies += [varPool_2.finalPick[i] for i in range(len(varPool_2.finalPick)) if varPool_2.colony_button_flag[i] == 1]
+					varPool_2.bad_colonies += list(varPool_2.finalPick[i] for i in range(len(varPool_2.finalPick)) if varPool_2.colony_button_flag[i] == 1)
 				click_confirm_Yes_with_arg = partial(click_confirm_Yes, varPool_1)
 				def click_confirm_No():
 					time.sleep(0.1)
@@ -1510,10 +1510,10 @@ def savePCAdata(globalOutput, configure_pool, sample_config_path, pick_dir, outp
 		fontSize = configure_pool["colonyQC_image_labelSize"]
 		fontThickness = configure_pool["colonyQC_image_thickness"]
 		groupID_index = findGroupIDindex(globalOutput, eachGroupID)
-		groupID_label_list = [globalOutput.image_label[i] for i in groupID_index]
-		groupID_image_trans_list = [globalOutput.image_trans_corrected[i] for i in groupID_index]
+		groupID_label_list = list(globalOutput.image_label[i] for i in groupID_index)
+		groupID_image_trans_list = list(globalOutput.image_trans_corrected[i] for i in groupID_index)
 		groupID_image_merge, groupID_image_heightStart = concatenateImages_gray(groupID_image_trans_list, groupID_label_list, spacing, fontSize, fontThickness)
-		groupID_metadata_list = [globalOutput.all_metadata[i] for i in groupID_index]
+		groupID_metadata_list = list(globalOutput.all_metadata[i] for i in groupID_index)
 		groupID_metadata_merge = concat_metadata(groupID_metadata_list, groupID_image_heightStart)
 		feats = groupID_metadata_merge[['Area', 'Perimeter', 'Radius', 'Circularity', 'Convexity', 'Inertia', \
 										'Graymean', 'Graystd', 'Repimean', 'Repistd', \
