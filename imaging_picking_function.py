@@ -12,7 +12,6 @@ import pandas as pd
 from functools import partial
 from sklearn import preprocessing, manifold, decomposition
 from sklearn.mixture import GaussianMixture
-from skimage.morphology import watershed
 from skimage.feature import peak_local_max
 from skimage import measure
 from skimage.segmentation import random_walker
@@ -693,10 +692,12 @@ def process_segmentation(image_subContour,image_subContour_binary, configure_poo
 	# Generate the markers as local maxima of the distance to the background
 	image_subContour_gray = image_subContour
 	distance = ndimage.distance_transform_edt(image_subContour_gray)
-	local_maxi = peak_local_max(distance, indices = False, footprint = np.ones((randowWalker_maxiSize, randowWalker_maxiSize)), labels = image_subContour_binary)
+	peak_idx = peak_local_max(distance, footprint = np.ones((randowWalker_maxiSize, randowWalker_maxiSize)), labels = image_subContour_binary)
+	local_maxi = np.zeros_like(distance, dtype=bool)
+	local_maxi[tuple(peak_idx.T)] = True
 	markers = morphology.label(local_maxi)
 	markers[image_subContour_binary == 0] = -1
-	labels_rw = random_walker(image_subContour, markers, multichannel = False, beta = randomWalker_beta, mode = randomWalker_method)
+	labels_rw = random_walker(image_subContour, markers, beta = randomWalker_beta, mode = randomWalker_method)
 	return(labels_rw)
 
 def post_filterContours(contours, configure_pool):
