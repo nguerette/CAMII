@@ -18,7 +18,7 @@ from skimage import measure
 from skimage.segmentation import random_walker
 from skimage import morphology
 from scipy import ndimage
-from Tkinter import *
+from tkinter import *
 from PIL import Image,ImageTk
 
 class globalOutputObject(object):
@@ -41,7 +41,7 @@ class farthest_points_object(object):
 
 def readConfigureFile(configure_path):
 	tmpConfigureOutput = {}
-	f = open(configure_path,"rb")
+	f = open(configure_path,"r",encoding="utf-8")
 	data = f.readlines()
 	f.close()
 	for each in data:
@@ -928,8 +928,8 @@ def farthest_points_parallel(data, n, threadIndex, outputObject):
 		for i in range(n):
 			no_i = r[:]
 			no_i.pop(i) 
-			cols_in_play = np.asarray(range(dist_mat.shape[1]))[np.newaxis, :][:, filter(lambda n: n not in no_i, range(dist_mat.shape[1]))] 
-			mm = dist_mat[no_i, :][:, filter(lambda n: n not in no_i, range(dist_mat.shape[1]))] 
+			cols_in_play = np.asarray(list(range(dist_mat.shape[1])))[np.newaxis, :][:, list(filter(lambda n: n not in no_i, range(dist_mat.shape[1])))] 
+			mm = dist_mat[no_i, :][:, list(filter(lambda n: n not in no_i, range(dist_mat.shape[1])))] 
 			max_min_dist = np.argmax(np.min(mm, 0)) 
 			r[i] = cols_in_play[0, :][max_min_dist]
 	outputObject.choices_list[threadIndex] = r
@@ -944,8 +944,8 @@ def farthest_points(data, n):
 		for i in range(n):
 			no_i = r[:]
 			no_i.pop(i) 
-			cols_in_play = np.asarray(range(dist_mat.shape[1]))[np.newaxis, :][:, filter(lambda n: n not in no_i, range(dist_mat.shape[1]))] 
-			mm = dist_mat[no_i, :][:, filter(lambda n: n not in no_i, range(dist_mat.shape[1]))] 
+			cols_in_play = np.asarray(list(range(dist_mat.shape[1])))[np.newaxis, :][:, list(filter(lambda n: n not in no_i, range(dist_mat.shape[1])))] 
+			mm = dist_mat[no_i, :][:, list(filter(lambda n: n not in no_i, range(dist_mat.shape[1])))] 
 			max_min_dist = np.argmax(np.min(mm, 0)) 
 			r[i] = cols_in_play[0, :][max_min_dist]
 	return r, np.max(np.min(mm, 0))
@@ -959,7 +959,7 @@ def pickColonyFirst(finalDF, num_of_pick, iteration):
 	thresh = min(num_of_pick, int(len(feats)))
 
 	if num_of_pick > preprocessed_plates.shape[0]:
-		return range(preprocessed_plates.shape[0]), preprocessed_plates
+		return list(range(preprocessed_plates.shape[0])), preprocessed_plates
 
 	max_min_dist = 0.0
 	best_choices = []
@@ -1074,10 +1074,10 @@ def colonyQualityControl(height_crop, width_crop, image_trans_crop, resize_facto
 	globalVar.num_of_pick = len(pick_choice)
 	globalVar.finalPick = list(i for i in pick_choice)
 	globalVar.pick_finalDF = post_finalDF.iloc[globalVar.finalPick]
-	globalVar.pick_finalDF.index = range(len(globalVar.finalPick))
+	globalVar.pick_finalDF.index = list(range(len(globalVar.finalPick)))
 	globalVar.pick_finalContours = list(post_finalContours[i] for i in globalVar.finalPick)
 	globalVar.image_picked_contours = drawContour(image_trans_crop, globalVar.pick_finalContours, colonyQC_colonyContourPixel)
-	globalVar.image_picked_contours_label = drawContourLabel(globalVar.image_picked_contours, globalVar.pick_finalDF, range(1, len(globalVar.finalPick) + 1), colonyQC_colonyLabelSize, colonyQC_colonyLabelThickness)
+	globalVar.image_picked_contours_label = drawContourLabel(globalVar.image_picked_contours, globalVar.pick_finalDF, list(range(1, len(globalVar.finalPick) + 1)), colonyQC_colonyLabelSize, colonyQC_colonyLabelThickness)
 	globalVar.colony_button_flag = []
 
 	height_crop_merge, width_crop_merge = image_trans_crop.shape
@@ -1204,9 +1204,9 @@ def colonyQualityControl(height_crop, width_crop, image_trans_crop, resize_facto
 						varPool_1.finalPick.sort()
 						varPool_1.pick_finalContours = list(post_finalContours[i] for i in varPool_1.finalPick)
 						varPool_1.pick_finalDF = post_finalDF.iloc[varPool_1.finalPick]
-						varPool_1.pick_finalDF.index = range(len(varPool_1.finalPick))
+						varPool_1.pick_finalDF.index = list(range(len(varPool_1.finalPick)))
 						varPool_1.image_picked_contours = drawContour(image_trans_crop, varPool_1.pick_finalContours, colonyQC_colonyContourPixel)
-						varPool_1.image_picked_contours_label = drawContourLabel(varPool_1.image_picked_contours, varPool_1.pick_finalDF, range(1, len(varPool_1.finalPick) + 1), \
+						varPool_1.image_picked_contours_label = drawContourLabel(varPool_1.image_picked_contours, varPool_1.pick_finalDF, list(range(1, len(varPool_1.finalPick) + 1)), \
 																				colonyQC_colonyLabelSize, colonyQC_colonyLabelThickness)
 						cv2image = varPool_1.image_picked_contours_label
 						resize_image = cv2.resize(cv2image, (int(width_crop_merge * resize_factor * 18 / 19), int(height_crop_merge * resize_factor * 18 / 19)))
@@ -1475,7 +1475,7 @@ def modifyOutputObject_colonyDetection(globalOutput, total_image, configure_pool
 		tmp_metadataDF["X_rawImage"] = tmp_metadataDF["X"] + configure_pool["cropXMin"]
 		tmp_metadataDF["Y_rawImage"] = tmp_metadataDF["Y"] + configure_pool["cropYMin"]
 		tmp_metadataDF["plate_barcode"] = [globalOutput.image_label[i], ] * len(tmp_all_contours)
-		tmp_metadataDF["colony_index"] = range(len(tmp_all_contours))
+		tmp_metadataDF["colony_index"] = list(range(len(tmp_all_contours)))
 		globalOutput.all_metadata[i] = tmp_metadataDF
 
 def saveOutputs_colonyDetection(globalOutput, total_image, configure_pool, output_dir):
@@ -1494,7 +1494,7 @@ def saveOutputs_colonyDetection(globalOutput, total_image, configure_pool, outpu
 	timeStamp = time.time()
 	timeValue = datetime.datetime.fromtimestamp(timeStamp)
 	timeFormat = timeValue.strftime('%Y%m%d_%H%M%S_%f')
-	f = open(output_dir + "/colonyDetection." + timeFormat + ".merge.obj", 'w') 
+	f = open(output_dir + "/colonyDetection." + timeFormat + ".merge.obj", 'wb') 
 	pickle.dump(globalOutput, f)
 	f.close()
 
