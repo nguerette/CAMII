@@ -1491,7 +1491,7 @@ def saveOutputs_colonyDetection(globalOutput, total_image, configure_pool, outpu
 		output_image_trans_all_pin = drawPinSite(output_image_trans_all, tmp_all_contours, 2)
 		cv2.imwrite(output_dir + "/" + tmp_image_label + "_Image_colony_trans.jpg", output_image_trans_all_pin)
 		tmp_metadataDF.to_csv(output_dir + "/" + tmp_image_label + "_Metadata_all.csv")
-		np.save(output_dir + "/" + tmp_image_label + "_Contours_all.npy", tmp_all_contours)
+		np.savez(output_dir + "/" + tmp_image_label + "_Contours_all.npz", *tmp_all_contours)
 	timeStamp = time.time()
 	timeValue = datetime.datetime.fromtimestamp(timeStamp)
 	timeFormat = timeValue.strftime('%Y%m%d_%H%M%S_%f')
